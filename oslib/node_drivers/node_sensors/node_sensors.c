@@ -43,6 +43,8 @@
 #endif
 
 /* Defines initial io and sensor states and intialises data managment objects */
+io_data io = {{0, 0, 0}, 0, 0, 100, 10};
+sensor_data data = {0, 0, 0, 0, 0, 0, 0};
 K_SEM_DEFINE(sensor_sem, 1, 1);
 
 int init_led(io_data* data, int led_num) {
@@ -138,9 +140,18 @@ uint8_t get_button_state() {
 }
 
 void handle_sensor_mobile() {
-	// take semaphore
-	// read mpu
-	// update buffer
-	// give semaphore
-	// sleep
+	for (int i = 0; i < 3; i++) {
+		init_led(&io, i);
+	} 
+	init_button(&io);
+
+	while(1) {
+		k_sem_take(&sensor_sem, K_FOREVER);
+	
+		// read mpu
+		// update buffer
+
+		k_sem_give(&sensor_sem);
+		k_msleep(SENSORS_SLEEP);
+	}
 }

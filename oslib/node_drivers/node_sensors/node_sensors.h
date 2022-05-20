@@ -36,9 +36,33 @@
 /* Defines thread specfics */
 #define SENSORS_STACKSIZE 1024
 #define SENSORS_PRIORITY 7
+#define SENSORS_SLEEP 1000
 
 /* Declares sempahore for data access */
 extern struct k_sem sensor_sem;
+
+/* Defines type to store all io data */
+typedef struct io_data {
+	uint8_t led_states[3];
+	uint8_t button_state;
+	int buzzer;
+	int dc;
+	int sleep_time;
+	int send_time;
+	int rec_time;
+	int rec_num;
+} io_data;
+
+/* Defines type to store all sensor data */
+typedef struct sensor_data {
+	double temperature;
+	double humidity;	
+	double pressure;
+	double voc;
+	double x_accel;
+	double y_accel;
+	double z_accel;
+} sensor_data;
 
 /* Function Prototypes */
 // Initializes the given LED.
@@ -95,3 +119,5 @@ uint8_t get_button_state(void);
 
 // Function that operates as thread opening point to handle all mobile sensor interactions.
 void handle_sensor_mobile(void);
+
+#endif
