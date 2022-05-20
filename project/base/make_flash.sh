@@ -1,0 +1,1 @@
+west build -p auto -b nrf52840dongle_nrf52840 && nrfutil pkg generate --hw-version 52 --sd-req=0x00 --application build/zephyr/zephyr.hex --application-version 1 ahu.zip && sudo chmod 777 /dev/ttyACM0 && nrfutil dfu usb-serial -pkg ahu.zip -p /dev/ttyACM0
