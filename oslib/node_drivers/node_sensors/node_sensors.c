@@ -47,6 +47,17 @@ io_data io = {{0, 0, 0}, 0, 0, 100, 10};
 sensor_data data = {0, 0, 0, 0, 0, 0, 0};
 K_SEM_DEFINE(sensor_sem, 1, 1);
 
+/* Defines config struct for imu */
+struct pwr_ctrl_cfg {
+	const char* port;
+	uint32_t pin;
+}
+
+static const struct pwr_ctlrl_cfg imu_pwr_ctrl_cfg = {
+	//.port = ,
+	//.pin
+};
+
 int init_led(io_data* data, int led_num) {
 	int ret = -1;
 	if (!device_is_ready(leds[led_num]->port)) {
@@ -72,6 +83,21 @@ int init_button(io_data* data) {
 	gpio_add_callback(thingy52_button.port, &button_cb_data);
 	data->button_state = 0;
 	return ret;
+}
+
+int init_imu(const struct device* dev) {
+	const struct pwr_ctrl_cfg* cfg = dev->config;
+	const struct device* gpio;
+
+	gpio = device_get_binding(cfg->port);
+	if (!gpio) {
+		printk("Could not bind IMU device\n");
+		return -1;
+	}
+
+	gpio_pin_configure(gpiom cfg->pin, GPIO_OUTPUT_HIGH);
+	k_sleep(K_MSEC(1));
+	return 0;
 }
 
 void toggle_led(io_data* data, int led_num) {
