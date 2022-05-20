@@ -136,3 +136,11 @@ int read_sensor(const struct device* dev, const int* reading_types, int num_sens
 uint8_t get_button_state() {
 	return gpio_pin_get_dt(&thingy52_button);
 }
+
+void handle_sensor_mobile() {
+	// take semaphore
+	// read mpu
+	// update buffer
+	// give semaphore
+	// sleep
+}
