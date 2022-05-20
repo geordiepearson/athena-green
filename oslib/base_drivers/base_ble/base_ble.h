@@ -19,3 +19,9 @@
 #include <sys/byteorder.h>
 
 
+#define MOBILE_ADV_TYPE 0x42
+#define STATIC_ADV_TYPE 0x43
+
+void thread_ble_base(void);
+
+#endif
