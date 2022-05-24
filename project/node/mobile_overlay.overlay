@@ -1,0 +1,14 @@
+&i2c0 {
+    mpu9250: mpu9250@68 {
+		compatible = "invensense,mpu9250";
+		reg = <0x68>;
+		label = "MPU9250";
+		vin-supply = <&mpu_pwr>;
+		irq-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+        gyro-sr-div = <1>;
+        gyro-dlpf = <5>;
+        gyro-fs = <500>;
+        accel-dlpf = "5.05";
+        accel-fs = <4>;
+	};
+};

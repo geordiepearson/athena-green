@@ -23,6 +23,7 @@
 #include <sys/byteorder.h>
 
 /* Defines constants for bluetooth sleep times (ms) */
+#define BT_CUSTOM_DATA 0x42
 
 // Initialises bluetooth advertising
 void init_bt(void);

@@ -23,10 +23,14 @@
 	#define LED_GREEN_NODE DT_NODELABEL(led1)
 	#define LED_BLUE_NODE DT_NODELABEL(led2)
 	#define BUTTON_NODE DT_NODELABEL(button0)
+	#define EXPANDER_NODE DT_NODELABEL(sx1509b)
+	#define VDD_MPU_NODE DT_NODELABEL(mpu_pwr)
 #else
 	/* Device Tree Macros for Static Node */
 	#define LED_RED_NODE DT_NODELABEL(user_led)
 #endif
+
+#define MPU_PWR_CTRL_PIN 8
 
 /* Defines for led indexing */
 #define LED_RED_INDEX 0

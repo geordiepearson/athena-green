@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.20.0)
 # 0 or 1
 option(MOBILE_NODE "is a mobile node (otherwise static node)" OFF)
 if (MOBILE_NODE)
+	set(DTC OVERLAY_FILE mobile_overlay.overlay)
 	set(CONF_FILE prj_mobile.conf segger_rtt_console.conf bt.conf)
 	add_definitions(-DMOBILE_NODE=1)
 else()

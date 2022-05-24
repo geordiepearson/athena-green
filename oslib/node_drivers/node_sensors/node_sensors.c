@@ -14,6 +14,7 @@
 #include <devicetree.h>
 #include <drivers/gpio.h>
 #include <drivers/sensor.h>
+#include <drivers/regulator.h>
 #include "node_sensors.h"
 
 #if MOBILE_NODE == 1
@@ -25,9 +26,8 @@
 						     &thingy52_blue_led};
 	static const struct gpio_dt_spec thingy52_button = GPIO_DT_SPEC_GET(BUTTON_NODE, gpios);
 	static struct gpio_callback button_cb_data;
-
-	/* Device handles for sensors */
-
+	
+	static const struct device* thingy52_mpu_pwr = DEVICE_DT_GET(VDD_MPU_NODE);
 #else
 	/* Device handles for IO peripherals */
 	static const struct gpio_dt_spec thingy52_red_led = GPIO_DT_SPEC_GET(LED_RED_NODE, gpios);
@@ -38,8 +38,7 @@
 	static const struct gpio_dt_spec thingy52_button;
 	static struct gpio_callback button_cb_data;
 
-	/* Device handles for sensors */
-	
+	static const struct device* thingy52_mpu_pwr;
 #endif
 
 /* Defines initial io and sensor states and intialises data managment objects */
@@ -51,12 +50,14 @@ K_SEM_DEFINE(sensor_sem, 1, 1);
 struct pwr_ctrl_cfg {
 	const char* port;
 	uint32_t pin;
-}
-
-static const struct pwr_ctlrl_cfg imu_pwr_ctrl_cfg = {
-	//.port = ,
-	//.pin
 };
+
+#if MOBILE_NODE == 1
+static const struct pwr_ctrl_cfg imu_pwr_ctrl_cfg = {
+	.port = DT_LABEL(EXPANDER_NODE),
+	.pin = MPU_PWR_CTRL_PIN
+};
+#endif
 
 int init_led(io_data* data, int led_num) {
 	int ret = -1;
@@ -86,6 +87,8 @@ int init_button(io_data* data) {
 }
 
 int init_imu(const struct device* dev) {
+	regulator_enable(thingy52_mpu_pwr, NULL);
+
 	const struct pwr_ctrl_cfg* cfg = dev->config;
 	const struct device* gpio;
 
@@ -95,7 +98,7 @@ int init_imu(const struct device* dev) {
 		return -1;
 	}
 
-	gpio_pin_configure(gpiom cfg->pin, GPIO_OUTPUT_HIGH);
+	gpio_pin_configure(gpio, cfg->pin, GPIO_OUTPUT_HIGH);
 	k_sleep(K_MSEC(1));
 	return 0;
 }
@@ -173,7 +176,7 @@ void handle_sensor_mobile() {
 
 	while(1) {
 		k_sem_take(&sensor_sem, K_FOREVER);
-	
+		toggle_led(&io, 1);	
 		// read mpu
 		// update buffer
 
