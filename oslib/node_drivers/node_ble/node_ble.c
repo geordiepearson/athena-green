@@ -82,7 +82,7 @@ static bool parse_device(struct bt_data *data, void *user_data)
         return false;
         
     }
-    return false;
+    return true;
 }
 
 
@@ -135,7 +135,7 @@ static void start_scan(void)
 
 
 
-#if MOBILE_NODE == 1
+// #if MOBILE_NODE == 1
 
 /* flash LED for debugging and distancing alert */
 #define LED0_NODE DT_ALIAS(led0)
@@ -161,6 +161,8 @@ void handle_bt_mobile(void) {
 		printk("Bluetooth init failed with code %d.\n", ret);
 		return;	
 	}
+
+	gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
 
 	while (1) {
 
@@ -249,7 +251,7 @@ void handle_bt_mobile(void) {
 	}
 }
 
-#endif
+// #endif
 
 /**
  * Bluetooth code for static node. Just advertises the infrared sensor data,

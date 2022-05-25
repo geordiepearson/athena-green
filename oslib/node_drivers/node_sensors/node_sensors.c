@@ -70,6 +70,8 @@ int init_led(io_data* data, int led_num) {
 	return ret;
 }
 
+#if MOBILE_NODE == 1
+
 int init_button(io_data* data) {
 	int ret = -1;
 	if (!device_is_ready(thingy52_button.port)) {
@@ -85,6 +87,8 @@ int init_button(io_data* data) {
 	data->button_state = 0;
 	return ret;
 }
+
+
 
 int init_imu(const struct device* dev) {
 	regulator_enable(thingy52_mpu_pwr, NULL);
@@ -184,3 +188,5 @@ void handle_sensor_mobile() {
 		k_msleep(SENSORS_SLEEP);
 	}
 }
+
+#endif
