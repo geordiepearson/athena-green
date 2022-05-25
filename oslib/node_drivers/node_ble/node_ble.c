@@ -26,9 +26,13 @@
 #define SCANNING 0
 #define ADVERTISING 1
 
+#define TOO_CLOSE_RSSI -62
+
 uint32_t last_switchtime = 0;
 bool time_corrected = false;
 bool state = SCANNING;
+uint32_t last_too_close = 0;
+bool too_close = false;
 
 struct advert_user_data {
 	int8_t rssi;
@@ -90,6 +94,13 @@ static bool parse_device(struct bt_data *data, void *user_data)
         printk("mobile adv found, rssi: %d\n", adv_user_dat->rssi);
         // time synchonrization: when we find a packet, we switch to scanning mode?
         adv_found = true;
+
+        // detect if it is too close
+        if (adv_user_dat->rssi > TOO_CLOSE_RSSI) {
+        	too_close = true;
+        	last_too_close = k_uptime_get_32();
+        }
+
         return false;
         
     }
@@ -192,6 +203,10 @@ void handle_bt_mobile(void) {
 			continue;
 		}
 
+		if (too_close == true && (k_uptime_get_32() - last_too_close > 1500)) {
+			too_close = false;
+		}
+
 		
 		if (state == ADVERTISING) {
 			// stop scanning and start advertising
@@ -256,7 +271,9 @@ void handle_bt_mobile(void) {
 		
 			}
 
-			gpio_pin_set_dt(&led, 0);
+			if (!too_close) {
+				gpio_pin_set_dt(&led, 0); // if they are too close, hold LED on
+			}
 			
 		}
 
