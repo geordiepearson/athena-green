@@ -21,6 +21,6 @@ K_THREAD_DEFINE(handle_bt_id, 2048, handle_bt_mobile, NULL, NULL, NULL,
 		8, 0, 0);
 // K_THREAD_DEFINE
 #else
-// K_THREAD_DEFINE
-// K_THREAD_DEFINE
+K_THREAD_DEFINE(handle_bt_id, 2048, handle_bt_mobile, NULL, NULL, NULL,
+		8, 0, 0);
 #endif
