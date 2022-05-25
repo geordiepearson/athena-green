@@ -68,6 +68,8 @@ void led_init() {
  *          UUID matches the custom UUID of the mobile device.
  *        If matched, attempt to connect to device.
  * 
+ * The callback should return true to continue parsing, or false to stop parsing. 
+ * 
  * @param data Callback data from scanning
  * @param user_data Device User data
  * @return true 
@@ -168,11 +170,14 @@ void thread_ble_base(void)
 
     LOG_INF("Bluetooth initialized\n");
 
-    // while (1) {
+    
+  
+    while (1) {
         start_scan();
-        // k_msleep(200);
-    // }
-
+        k_msleep(2000);
+        bt_le_scan_stop();
+        
+    }
 
     
 
