@@ -1,0 +1,2 @@
+#for recv timer py
+pwntools==4.7.0
