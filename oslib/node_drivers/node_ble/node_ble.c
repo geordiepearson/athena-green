@@ -22,6 +22,14 @@
 
 #include "node_ble.h"
 
+/* states */
+#define SCANNING 0
+#define ADVERTISING 1
+
+uint32_t last_switchtime = 0;
+bool time_corrected = false;
+bool state = SCANNING;
+
 struct advert_user_data {
 	int8_t rssi;
 	const bt_addr_le_t *addr;
@@ -42,6 +50,7 @@ struct mobile_ad {
 	int8_t direction;
 };
 
+bool adv_found = false;
 bool is_advertising = false;
 bool is_scanning = false;
 
@@ -79,6 +88,8 @@ static bool parse_device(struct bt_data *data, void *user_data)
     if (data->type == MOBILE_ADV_TYPE)
     {
         printk("mobile adv found, rssi: %d\n", adv_user_dat->rssi);
+        // time synchonrization: when we find a packet, we switch to scanning mode?
+        adv_found = true;
         return false;
         
     }
@@ -142,12 +153,7 @@ static void start_scan(void)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
 
-/* states */
-#define SCANNING 0
-#define ADVERTISING 1
 
-uint32_t last_switchtime = 0;
-bool state = SCANNING;
 
 /**
  * mobile bluetooth thread
@@ -173,13 +179,13 @@ void handle_bt_mobile(void) {
 		// k_msleep(100);
 
 		/*** state switcher ***/
-		if (state == SCANNING && ((k_uptime_get_32() - last_switchtime) > 500)) {
+		if (state == SCANNING && ((k_uptime_get_32() - last_switchtime) > 200)) {
 			printk("[%d] Switching to advertising\n", k_uptime_get_32());
 			
 			state = ADVERTISING;
 			last_switchtime = k_uptime_get_32();
 			continue;
-		} else if (state == ADVERTISING && ((k_uptime_get_32() - last_switchtime) > 500)) {
+		} else if (state == ADVERTISING && ((k_uptime_get_32() - last_switchtime) > 50)) {
 			printk("[%d] Switching to scanning\n", k_uptime_get_32());
 			state = SCANNING;
 			last_switchtime = k_uptime_get_32();
@@ -214,7 +220,7 @@ void handle_bt_mobile(void) {
 					// return;
 				}
 				is_advertising = true;
-				k_msleep(200);
+				// k_msleep(200);
 			}
 
 			
@@ -229,6 +235,13 @@ void handle_bt_mobile(void) {
 			// 	k_msleep(30);
 			// }
 
+			if (adv_found == true && time_corrected == false) { // only do this once
+				printk("adv found, staying in scanning mode a little longer\n");
+				last_switchtime = k_uptime_get_32();
+				adv_found = false;
+				time_corrected = true;
+			}
+
 			is_advertising = false;
 			if (is_scanning == false) {
 				bt_le_adv_stop();
@@ -237,6 +250,7 @@ void handle_bt_mobile(void) {
 				bt_le_scan_stop();
 				// k_msleep(100);
 
+				adv_found = false;
 				start_scan(); // this will set is_scanning to true if success
 				printk("[%d] Scanning started\n", k_uptime_get_32());
 		
