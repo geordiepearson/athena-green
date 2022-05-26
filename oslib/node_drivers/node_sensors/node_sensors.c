@@ -60,6 +60,8 @@ int init_led(io_data* data, int led_num) {
 	return ret;
 }
 
+#if MOBILE_NODE == 1
+
 int init_button(io_data* data) {
 	int ret = -1;
 	if (!device_is_ready(thingy52_button.port)) {
@@ -75,6 +77,24 @@ int init_button(io_data* data) {
 	data->button_state = 0;
 	return ret;
 }
+
+int init_imu(const struct device* dev) {
+	regulator_enable(thingy52_mpu_pwr, NULL);
+
+	const struct pwr_ctrl_cfg* cfg = dev->config;
+	const struct device* gpio;
+
+	gpio = device_get_binding(cfg->port);
+	if (!gpio) {
+		printk("Could not bind IMU device\n");
+		return -1;
+	}
+
+	gpio_pin_configure(gpio, cfg->pin, GPIO_OUTPUT_HIGH);
+	k_sleep(K_MSEC(1));
+	return 0;
+}
+
 
 void toggle_led(io_data* data, int led_num) {
 	gpio_pin_toggle_dt(leds[led_num]);
@@ -195,7 +215,8 @@ void handle_sensor_mobile() {
 		k_msleep(SENSORS_SLEEP);
 	}
 }
-		//printk("X: %d Y: %d Z: %d\n", (int) data.x_accel, (int) data.y_accel, (int) data.z_accel);
+#endif
+//printk("X: %d Y: %d Z: %d\n", (int) data.x_accel, (int) data.y_accel, (int) data.z_accel);
 
 /* Defines config struct for imu
 struct pwr_ctrl_cfg {
