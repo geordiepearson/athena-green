@@ -24,12 +24,15 @@
 	#define LED_BLUE_NODE DT_NODELABEL(led2)
 	#define BUTTON_NODE DT_NODELABEL(button0)
 	#define EXPANDER_NODE DT_NODELABEL(sx1509b)
+	#define LIS2DH_NODE DT_NODELABEL(lis2dh12)
+	#define MPU_NODE DT_NODELABEL(mpu9250)
 	#define VDD_MPU_NODE DT_NODELABEL(mpu_pwr)
 #else
 	/* Device Tree Macros for Static Node */
 	#define LED_RED_NODE DT_NODELABEL(user_led)
 #endif
 
+#define VDD_PWR_CTRL_PIN 30
 #define MPU_PWR_CTRL_PIN 8
 
 /* Defines for led indexing */
@@ -66,6 +69,7 @@ typedef struct sensor_data {
 	double x_accel;
 	double y_accel;
 	double z_accel;
+	int dir;
 } sensor_data;
 
 /* Function Prototypes */
@@ -120,6 +124,21 @@ int read_sensor(const struct device* dev, const int* reading_types, int num_sens
 // Returns:
 // 	The current state of the button.
 uint8_t get_button_state(void);
+
+// Converts the acceleration measured by the mobile node into a step count.
+// Parameters:
+// 	- data: The sensor data with acceleration information
+// 	- prev_values: The previous acceleration values
+// Returns:
+// 	The number of steps that have occured
+uint8_t acceleration_to_step(sensor_data data, int* prev_values);
+
+// Converts the acceleration measured by the mobile node into a direction.
+// Parameters:
+// 	- data: The sensor data with acceleration information
+// Returns:
+// 	The current bearing of the mobile node
+uint8_t acceleration_to_direction(sensor_data* data);
 
 // Function that operates as thread opening point to handle all mobile sensor interactions.
 void handle_sensor_mobile(void);

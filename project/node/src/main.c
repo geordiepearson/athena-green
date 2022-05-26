@@ -16,7 +16,8 @@
 #include "node_ble.h"
 
 #if MOBILE_NODE == 1
-// K_THREAD_DEFINE
+K_THREAD_DEFINE(handle_sensor_id, SENSORS_STACKSIZE, handle_sensor_mobile, NULL, NULL, NULL,
+		SENSORS_PRIORITY, 0, 0);
 // K_THREAD_DEFINE
 #else
 // K_THREAD_DEFINE
