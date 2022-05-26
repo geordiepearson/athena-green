@@ -12,7 +12,7 @@ if (MOBILE_NODE)
 	add_definitions(-DM_ID=1)
 else()
 	set(CONF_FILE prj_static.conf segger_rtt_console.conf bt.conf)
-	add_definitions(-DM_ID=5)
+	add_definitions(-DM_ID=1)
 endif()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})

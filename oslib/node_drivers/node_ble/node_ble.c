@@ -39,21 +39,6 @@ struct advert_user_data {
 	const bt_addr_le_t *addr;
 };
 
-/**
- * packet structure to advertise to nearly mobile and static nodes
- **/
-struct mobile_ad {
-	char m_id;
-	char b1_id; 
-	int8_t b1_rssi;
-	char b2_id; 
-	int8_t b2_rssi;
-	char b3_id; 
-	int8_t b3_rssi;
-	int8_t speed;
-	int8_t direction;
-};
-
 bool adv_found = false;
 bool is_advertising = false;
 bool is_scanning = false;

@@ -61,6 +61,10 @@ int init_led(io_data* data, int led_num) {
 }
 
 #if MOBILE_NODE == 1
+struct pwr_ctrl_cfg {
+	const char* port;
+	uint32_t pin;
+};
 
 int init_button(io_data* data) {
 	int ret = -1;
@@ -198,7 +202,6 @@ void handle_sensor_mobile() {
 	int direction = 0;
 	while(1) {
 		k_sem_take(&sensor_sem, K_FOREVER);
-		toggle_led(&io, 1);
 		read_sensor(thingy52_lis2dh, lis2dh_sensors, 1, &data);
 	
 		step = acceleration_to_step(data, prev_values);
@@ -209,6 +212,7 @@ void handle_sensor_mobile() {
 		prev_values[0] = data.x_accel;
 		prev_values[1] = data.y_accel; 
 		prev_values[2] = data.z_accel; 	
+		data.dir = direction;
 		// update buffer
 	
 		k_sem_give(&sensor_sem);
