@@ -80,9 +80,15 @@ static bool parse_device(struct bt_data *data, void *user_data)
     
     struct advert_user_data *adv_user_dat = user_data;
     
-    if (data->type == MOBILE_ADV_TYPE)
+    if (data->type == STATIC_ADV_TYPE)
     {
-        LOG_INF("mobile adv found, rssi: %d", adv_user_dat->rssi);
+        // LOG_INF("mobile adv found, rssi: %d", adv_user_dat->rssi);
+        struct static_ad sad;
+        memcpy(&sad, data->data, sizeof(sad));
+        LOG_PRINTK("{\"static_id\":%d, \"ttl\":%d, \"mobile_id\":%d, \"b1\":\"%c\",\"b1r\":%d,\"b2\":\"%c\",\"b2r\":%d,\"b3\":\"%c\",\"b3r\":%d,\"uptime\":%d}\n", sad.static_id, sad.ttl,
+                sad.m_ad.m_id, sad.m_ad.b1_id, sad.m_ad.b1_rssi, 
+                sad.m_ad.b2_id, sad.m_ad.b2_rssi,
+                sad.m_ad.b3_id, sad.m_ad.b3_rssi, k_uptime_get_32());
         return false;
         
     }
@@ -104,18 +110,14 @@ static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
 {
 
 
-    /* We're only interested in connectable events */
-    if (type == BT_GAP_ADV_TYPE_ADV_IND ||
-        type == BT_GAP_ADV_TYPE_ADV_DIRECT_IND)
-    {
-        // LOG_INF("some device found");
-        // bt_data_parse(ad, parse_device, (void *)addr);
-        struct advert_user_data user_data = {
-            .rssi = rssi,
-            .addr = addr
-        };
-        bt_data_parse(ad, parse_device, &user_data);
-    }
+    // LOG_INF("some device found");
+    // bt_data_parse(ad, parse_device, (void *)addr);
+    struct advert_user_data user_data = {
+        .rssi = rssi,
+        .addr = addr
+    };
+    bt_data_parse(ad, parse_device, &user_data);
+
 }
 
 /**
@@ -133,7 +135,7 @@ static void start_scan(void)
         return;
     }
 
-    LOG_INF("Scanning successfully started\n");
+    // LOG_INF("Scanning successfully started\n");
 }
 
 
@@ -174,7 +176,7 @@ void thread_ble_base(void)
   
     while (1) {
         start_scan();
-        k_msleep(2000);
+        k_msleep(300);
         bt_le_scan_stop();
         
     }

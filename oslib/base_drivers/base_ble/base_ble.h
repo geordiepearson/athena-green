@@ -22,6 +22,30 @@
 #define MOBILE_ADV_TYPE 0x42
 #define STATIC_ADV_TYPE 0x43
 
+/**
+ * packet structure to advertise to nearly mobile and static nodes
+ **/
+struct mobile_ad {
+	char m_id;
+	char b1_id; 
+	int8_t b1_rssi;
+	char b2_id; 
+	int8_t b2_rssi;
+	char b3_id; 
+	int8_t b3_rssi;
+	int8_t speed;
+	int8_t direction;
+};
+
+/**
+ * packet structure to relay information between static nodes
+ **/
+struct static_ad {
+	int8_t ttl; // initially a small value and packet should no longer be forwarded when this hits 0
+	int8_t static_id; // static node id
+	struct mobile_ad m_ad;
+};
+
 void thread_ble_base(void);
 
 #endif
