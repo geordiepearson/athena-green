@@ -50,6 +50,9 @@ struct static_ad {
 	struct mobile_ad m_ad;
 };
 
+// define beacons tracked
+#define BEACONS 3
+
 //struct mobile_ad m_ad = {} 
 
 

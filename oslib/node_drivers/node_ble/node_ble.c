@@ -60,7 +60,9 @@ bool is_scanning = false;
 struct mobile_ad found_m_adv;
 struct static_ad found_s_adv;
 
-int8_t beacon_strengths [3] = {0xff,};
+// beacons tracked
+char top_beacon_ids [BEACONS] = {0,};
+int8_t top_beacon_strengths [BEACONS] = {0xff,};
 
 // static bool ble_advertising = false;
 
@@ -74,6 +76,50 @@ void init_bt(void) {
 		printk("Bluetooth init failed with code %d.\n", ret);
 		return;	
 	}
+}
+
+/**
+ * add or update the top N (3) beacon IDs and RSSIs
+ * 
+ **/
+void add_or_update_beacon(char id, int8_t rssi) {
+	for (int i = 0; i < BEACONS; ++i)
+	{
+		// if id matches, then update. else add a new entry
+		if (id == top_beacon_ids[i]) {
+			top_beacon_strengths[i] = rssi;
+			printk("[add_or_update_beacon] replaced ibeacon %c: %d\n", id, rssi);
+			return; // done now
+		}
+	}
+
+	// no past id's matched. update or add new entry
+	for (int i = 0; i < BEACONS; ++i)
+	{
+		if (top_beacon_ids[i] == 0) { // initial / empty is 0
+			top_beacon_ids[i] = id;
+			top_beacon_strengths[i] = rssi;
+			printk("[add_or_update_beacon] new ibeacon %c: %d\n", id, rssi);
+			return;
+		}
+	}
+
+	// if its here then none of the id's were empty, get the least strong beacon and update it
+	int weakest = 2;
+	int minrssi = 0;
+	for (int i = 0; i < BEACONS; ++i)
+	{
+		if (top_beacon_strengths[i] < minrssi) {
+			minrssi = top_beacon_strengths[i];
+			weakest = i;
+		}
+	}
+
+	printk("[add_or_update_beacon] updated index[%d] %c (%d) -> %c (%d)\n", weakest, top_beacon_ids[weakest], top_beacon_strengths[weakest], id, rssi);
+	top_beacon_ids[weakest] = id;
+	top_beacon_strengths[weakest] = rssi;
+
+
 }
 
 /**
@@ -107,6 +153,35 @@ static bool parse_device(struct bt_data *data, void *user_data)
         return false;
         
     }
+
+    if (data->type == BT_DATA_NAME_SHORTENED || data->type==BT_DATA_NAME_COMPLETE ) {
+     	char name[7];
+		strncpy(name, data->data, 6);
+		// printk("found name:%s\n", name);
+		name[6] = 0;
+		// char* name = data;
+		if (data->data != NULL && data->data_len >= 6) {
+			// if (strncmp(data->data, "Kontakt", 7) == 0) {
+				// printk("ibeacon name:%s data_len:%d type:%d rssi:%d\n", name, data->data_len, data->type, adv_user_dat->rssi);	
+			// }
+
+    		if (strncmp(data->data, "401", 3) == 0) {
+    			
+    			// printk("detected ibeacon: %s", name);
+    			// for (int i = 0; i < data->data_len; ++i)
+    			// {
+    			// 	printk("%02x", data->data[i]);
+    			// }
+    			char id = name[5];
+    			printk("beacon data_len:%d type:%d rssi:%d id:%c\n", data->data_len, data->type, adv_user_dat->rssi, id);
+    			add_or_update_beacon(id, adv_user_dat->rssi);
+
+    			// add_or_update_ranging_info(adv_user_dat->rssi, 0x42,  adv_user_dat->addr->a.val);
+    		}
+	// }
+		}
+		return false;
+     }
 #else
     // STATIC NODE ONLY CODE
 
@@ -142,11 +217,8 @@ static bool parse_device(struct bt_data *data, void *user_data)
 	    		found_s_adv.m_ad.b2_id, found_s_adv.m_ad.b2_rssi,
 	        	found_s_adv.m_ad.b3_id, found_s_adv.m_ad.b3_rssi);
 	    	return false;
-    	} else {
-    		printk("static adv came from me: %02x ttl %02x\n", ((struct static_ad*) data->data)->static_id, 
-    			((struct static_ad*) data->data)->ttl);
-    		// return false;
-    	}
+    	} 
+    	// else { printk("static adv came from me: %02x ttl %02x\n", ((struct static_ad*) data->data)->static_id,  ((struct static_ad*) data->data)->ttl);
     	
     }
 
@@ -173,18 +245,13 @@ static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
                          struct net_buf_simple *ad)
 {
 
-    /* We're only interested in connectable events */
-    if (type == BT_GAP_ADV_TYPE_ADV_IND ||
-        type == BT_GAP_ADV_TYPE_ADV_DIRECT_IND)
-    {
-        // LOG_INF("some device found");
-        // bt_data_parse(ad, parse_device, (void *)addr);
-        struct advert_user_data user_data = {
-            .rssi = rssi,
-            .addr = addr
-        };
-        bt_data_parse(ad, parse_device, &user_data);
-    }
+    // all events, not just connectable ones
+    struct advert_user_data user_data = {
+    		.rssi = rssi,
+    		.addr = addr
+    	};
+    // LOG_INF("some device found");
+    bt_data_parse(ad, parse_device, &user_data);
 }
 
 /**
@@ -203,7 +270,7 @@ static void start_scan(void)
     }
 
     printk("Scanning successfully started\n");
-    is_scanning = true;
+    
 }
 
 
@@ -246,7 +313,7 @@ void handle_bt_mobile(void) {
 		// k_msleep(100);
 
 		/*** state switcher ***/
-		if (state == SCANNING && ((k_uptime_get_32() - last_switchtime) > 200)) {
+		if (state == SCANNING && ((k_uptime_get_32() - last_switchtime) > 150)) {
 			printk("[%d] Switching to advertising\n", k_uptime_get_32());
 			
 			state = ADVERTISING;
@@ -272,7 +339,7 @@ void handle_bt_mobile(void) {
 			// k_msleep(30);
 
 			if (is_advertising == false) { // only start advertising when it isn started already
-				struct mobile_ad m_ad = {.m_id = M_ID, .b1_id = 'X', .b1_rssi = 99, .b2_id = 'Y', .b2_rssi = 99, .b3_id = 'Z', .b3_rssi = 99, .speed=66, .direction=1};
+				struct mobile_ad m_ad = {.m_id = M_ID, .b1_id = top_beacon_ids[0], .b1_rssi = top_beacon_strengths[0], .b2_id = top_beacon_ids[1], .b2_rssi = top_beacon_strengths[1], .b3_id = top_beacon_ids[2], .b3_rssi = top_beacon_strengths[2], .speed=66, .direction=1};
 
 				struct bt_data data_ad[] = {
 						BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -323,6 +390,7 @@ void handle_bt_mobile(void) {
 
 				adv_found = false;
 				start_scan(); // this will set is_scanning to true if success
+				is_scanning = true;
 				printk("[%d] Scanning started\n", k_uptime_get_32());
 		
 			}
@@ -368,7 +436,7 @@ void handle_bt_static(void) {
 			state = ADVERTISING;
 			last_switchtime = k_uptime_get_32();
 			continue;
-		} else if (state == ADVERTISING && ((k_uptime_get_32() - last_switchtime) > 250)) {
+		} else if (state == ADVERTISING && ((k_uptime_get_32() - last_switchtime) > 100)) {
 			printk("[%d] Switching to scanning (mobileturn:%i)\n", k_uptime_get_32(), is_turn_for_mobile_ads);
 			state = SCANNING;
 			last_switchtime = k_uptime_get_32();
