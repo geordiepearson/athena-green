@@ -31,17 +31,17 @@
 	static const struct device* thingy52_mpu9250 = DEVICE_DT_GET(MPU_NODE);	
 	static const struct device* thingy52_mpu_pwr;
 #else
-	/* Device handles for IO peripherals */
-	static const struct gpio_dt_spec thingy52_red_led = GPIO_DT_SPEC_GET(LED_RED_NODE, gpios);
-	static const struct gpio_dt_spec thingy52_green_led;
-	static const struct gpio_dt_spec thingy52_blue_led;
-	static const struct gpio_dt_spec* leds[3] = {&thingy52_red_led, &thingy52_green_led,
-						     &thingy52_blue_led};
-	static const struct gpio_dt_spec thingy52_button;
-	static struct gpio_callback button_cb_data;
+	// /* Device handles for IO peripherals */
+	// static const struct gpio_dt_spec thingy52_red_led = GPIO_DT_SPEC_GET(LED_RED_NODE, gpios);
+	// static const struct gpio_dt_spec thingy52_green_led;
+	// static const struct gpio_dt_spec thingy52_blue_led;
+	// static const struct gpio_dt_spec* leds[3] = {&thingy52_red_led, &thingy52_green_led,
+						     // &thingy52_blue_led};
+	// static const struct gpio_dt_spec thingy52_button;
+	// static struct gpio_callback button_cb_data;
 
-	static const struct device* thingy52_mpu_pwr;
-	static const struct device* thingy52_mpu;
+	// static const struct device* thingy52_mpu_pwr;
+	// static const struct device* thingy52_mpu;
 #endif
 
 static const int lis2dh_sensors[1] = {SENSOR_CHAN_ACCEL_XYZ};
@@ -49,6 +49,7 @@ io_data io = {{0, 0, 0}, 0, 0, 100, 10};
 sensor_data data = {0, 0, 0, 0, 0, 0, 0, 0};
 K_SEM_DEFINE(sensor_sem, 1, 1);
 
+#if MOBILE_NODE == 1
 int init_led(io_data* data, int led_num) {
 	int ret = -1;
 	if (!device_is_ready(leds[led_num]->port)) {
@@ -60,7 +61,7 @@ int init_led(io_data* data, int led_num) {
 	return ret;
 }
 
-#if MOBILE_NODE == 1
+
 struct pwr_ctrl_cfg {
 	const char* port;
 	uint32_t pin;

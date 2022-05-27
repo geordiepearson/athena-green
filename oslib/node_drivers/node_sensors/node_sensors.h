@@ -29,7 +29,7 @@
 	#define VDD_MPU_NODE DT_NODELABEL(mpu_pwr)
 #else
 	/* Device Tree Macros for Static Node */
-	#define LED_RED_NODE DT_NODELABEL(user_led)
+	// #define LED_RED_NODE DT_NODELABEL(led0)
 #endif
 
 #define VDD_PWR_CTRL_PIN 30

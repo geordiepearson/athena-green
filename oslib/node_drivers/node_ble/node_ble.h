@@ -41,6 +41,15 @@ struct mobile_ad {
 	int8_t direction;
 };
 
+/**
+ * packet structure to relay information between static nodes
+ **/
+struct static_ad {
+	int8_t ttl; // initially a small value and packet should no longer be forwarded when this hits 0
+	int8_t static_id; // static node id
+	struct mobile_ad m_ad;
+};
+
 //struct mobile_ad m_ad = {} 
 
 

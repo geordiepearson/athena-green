@@ -40,8 +40,25 @@ struct advert_user_data {
 };
 
 bool adv_found = false;
+
+
+#ifndef MOBILE_NODE
+/**
+ * these two flags are for the static node to track if they have picked up 
+ * anything during scanning phase to relay during advertising phase
+ **/
+bool mobile_adv_found = false;
+bool static_adv_found = false;
+// true for scanning for mobile ads, otherwise for scanning for static ads
+bool is_turn_for_mobile_ads = false; 
+#endif
+
 bool is_advertising = false;
 bool is_scanning = false;
+
+// might have a few found m ads?
+struct mobile_ad found_m_adv;
+struct static_ad found_s_adv;
 
 int8_t beacon_strengths [3] = {0xff,};
 
@@ -74,6 +91,7 @@ static bool parse_device(struct bt_data *data, void *user_data)
     
     struct advert_user_data *adv_user_dat = user_data;
     
+#if MOBILE_NODE == 1
     if (data->type == MOBILE_ADV_TYPE)
     {
         printk("mobile adv found, rssi: %d\n", adv_user_dat->rssi);
@@ -89,6 +107,54 @@ static bool parse_device(struct bt_data *data, void *user_data)
         return false;
         
     }
+#else
+    // STATIC NODE ONLY CODE
+
+    // XXX: prioritize static adv?
+    if (is_turn_for_mobile_ads) {
+    	if (data->type == MOBILE_ADV_TYPE) {
+	    	printk("mobile adv found by SN %d\n", adv_user_dat->rssi);
+	        // time synchonrization: when we find a packet, we switch to scanning mode?
+	        mobile_adv_found = true;
+
+	        // store it in the found adv
+	        memcpy(&found_m_adv, data->data, sizeof(found_m_adv));
+	        printk("m_id: %02x, b1 %c b1r %d b2 %c b2r %d b3 %c b3r %d\n", found_m_adv.m_id,
+	        	found_m_adv.b1_id, found_m_adv.b1_rssi, found_m_adv.b2_id, found_m_adv.b2_rssi,
+	        	found_m_adv.b3_id, found_m_adv.b3_rssi);
+	        return false;
+	    }
+
+    }
+
+    if (data -> type == STATIC_ADV_TYPE) {
+    	printk("static adv found by SN %d\n", adv_user_dat->rssi);
+    	
+    	
+    	if ( ((struct static_ad*) data->data)->static_id != M_ID && 
+    			((struct static_ad*) data->data)->ttl > 1) { // do not relay my own packet
+    		memcpy(&found_s_adv, data->data, sizeof(found_s_adv));
+    		// dont forward dead packets
+    		static_adv_found = true;
+    		found_s_adv.ttl -= 1;
+	    	printk("ttl: %d, s_id: %02x m_id: %02x, b1 %c b1r %d b2 %c b2r %d b3 %c b3r %d\n", found_s_adv.ttl, found_s_adv.static_id,
+	    		found_s_adv.m_ad.m_id, found_s_adv.m_ad.b1_id, found_s_adv.m_ad.b1_rssi, 
+	    		found_s_adv.m_ad.b2_id, found_s_adv.m_ad.b2_rssi,
+	        	found_s_adv.m_ad.b3_id, found_s_adv.m_ad.b3_rssi);
+	    	return false;
+    	} else {
+    		printk("static adv came from me: %02x ttl %02x\n", ((struct static_ad*) data->data)->static_id, 
+    			((struct static_ad*) data->data)->ttl);
+    		// return false;
+    	}
+    	
+    }
+
+    
+
+
+#endif
+
     return true;
 }
 
@@ -142,14 +208,19 @@ static void start_scan(void)
 
 
 
-// #if MOBILE_NODE == 1
-
+#if MOBILE_NODE == 1
 /* flash LED for debugging and distancing alert */
+// green for mobile node
+#define LED1_NODE DT_ALIAS(led1)
+static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED1_NODE, gpios);
+
+#else
+
+// led0 (blue) for static node
 #define LED0_NODE DT_ALIAS(led0)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
-
-
+#endif
 
 /**
  * mobile bluetooth thread
@@ -267,37 +338,132 @@ void handle_bt_mobile(void) {
 	}
 }
 
-// #endif
+
+#ifndef MOBILE_NODE
 
 /**
- * Bluetooth code for static node. Just advertises the infrared sensor data,
- * because the RSSI information is based on where it is sending anyway.
- *
+ * Bluetooth code for static nodes - creates a "mesh network" by forwarding mobile node packets to other static nodes
  **/
-/*void handle_bt_static(void) {
+void handle_bt_static(void) {
 
 	printk("static node.\n");
 	init_bt();
-	
-	struct bt_data data_ad[] = {
-				BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-				BT_DATA(BT_CUSTOM_DATA, 0, 2)
-				};
-	int ret = bt_le_adv_start(BT_LE_ADV_CONN_NAME, data_ad, ARRAY_SIZE(data_ad), NULL, 0);
-	if (ret) {
-		printk("Advertising failed with code %d.\n", ret);
+
+	gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+
+	int ret;
+	// listen & adv etc..
+	while (1) {
+
+		// printk("uptim32: %d\n", k_uptime_get_32());
+		// last_switchtime = k_uptime_get_32();
+		// printk("last_switchtime: %d\n", k_uptime_get_32());
+
+		// k_msleep(100);
+
+		/*** state switcher ***/
+		if (state == SCANNING && ((k_uptime_get_32() - last_switchtime) > 400)) {
+			printk("[%d] Switching to advertising\n", k_uptime_get_32());
+			
+			state = ADVERTISING;
+			last_switchtime = k_uptime_get_32();
+			continue;
+		} else if (state == ADVERTISING && ((k_uptime_get_32() - last_switchtime) > 250)) {
+			printk("[%d] Switching to scanning (mobileturn:%i)\n", k_uptime_get_32(), is_turn_for_mobile_ads);
+			state = SCANNING;
+			last_switchtime = k_uptime_get_32();
+			continue;
+		}
+
+		if (state == SCANNING) {
+
+			is_turn_for_mobile_ads = ! is_turn_for_mobile_ads; // flip this
+
+			
+			is_advertising = false;
+			if (is_scanning == false) {
+				bt_le_adv_stop();
+				printk("[%d] SN Adv stopped\n", k_uptime_get_32());
+				
+				bt_le_scan_stop();
+				// k_msleep(100);
+
+				adv_found = false;
+				start_scan(); // this will set is_scanning to true if success
+				printk("[%d] SN Scanning started\n", k_uptime_get_32());
+			
+			}
+			gpio_pin_set_dt(&led, 0); 
+		} else if (state == ADVERTISING) {
+			// stop scanning and start advertising
+			
+			// printk("[%d] Scanning stopped \n", k_uptime_get_32());
+
+			// k_msleep(30);
+
+			// XXX need to advertise both found mobile adverts and relay static adverts
+			if (is_advertising == false) { // only start advertising when it isn started already
+
+				is_advertising = true;
+
+				printk("about to start adv staticfound:%i mobilefound:%i\n", static_adv_found, mobile_adv_found);
+
+				if (static_adv_found) {
+
+					struct bt_data data_ad[] = {
+							BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
+							BT_DATA(STATIC_ADV_TYPE, &found_s_adv, sizeof(found_s_adv))
+							// BT_DATA(BT_DATA_UUID128_ALL,)
+					};
+
+					bt_le_adv_stop();
+					bt_le_scan_stop();
+					is_scanning = false;
+					
+					ret = bt_le_adv_start(BT_LE_ADV_CONN_NAME, data_ad, ARRAY_SIZE(data_ad), NULL, 0);
+					printk("[%d] SN Adv started, turn for mobile:%i ret:%d.\n", k_uptime_get_32(), is_turn_for_mobile_ads, ret);
+					if (ret) {
+						printk("SN Advertising failed with code %d.\n", ret);
+						// return;
+					}
+					is_advertising = true;
+
+				} else if (mobile_adv_found) {
+					struct static_ad s_ad = {.ttl=4, .static_id = M_ID, .m_ad = found_m_adv};
+
+					struct bt_data data_ad[] = {
+							BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
+							BT_DATA(STATIC_ADV_TYPE, &s_ad, sizeof(s_ad))
+							// BT_DATA(BT_DATA_UUID128_ALL,)
+					};
+
+					bt_le_adv_stop();
+					bt_le_scan_stop();
+					is_scanning = false;
+					
+					ret = bt_le_adv_start(BT_LE_ADV_CONN_NAME, data_ad, ARRAY_SIZE(data_ad), NULL, 0);
+					printk("[%d] Adv started %d.\n", k_uptime_get_32(), ret);
+					if (ret) {
+						printk("Advertising failed with code %d.\n", ret);
+						// return;
+					}
+					
+				}
+
+				
+			}
+			
+			gpio_pin_set_dt(&led, 1);
+			// reset at the end of starting adv
+			mobile_adv_found = false;
+			static_adv_found = false;
+
+		}
+
+		k_msleep(50);
 	}
-	printk("Advertising started.\n");
+
 	
-	while(1) {
-		uint8_t data[2] = {(ranging_bufs[0].distance_cm & 0xFF00) >> 8,
-			ranging_bufs[0].distance_cm & 0x00FF};
-		struct bt_data new_ad[] = {
-				BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-				BT_DATA(BT_CUSTOM_DATA, data, 2)
-				};
-		ret = bt_le_adv_update_data(new_ad, 2, NULL, 0); 
-		k_msleep(500);
-	}	
 }
-*/
+
+#endif
