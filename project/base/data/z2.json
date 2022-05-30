@@ -1,0 +1,26 @@
+connecting to broker localhost
+connected OK
+{"mobile_id":1, "b1":"A","b1r":-76,"b2":"F","b2r":-67,"b3":"E","b3r":-56,"uptime":1321901}
+{"mobile_id":1, "b1":"G","b1r":-84,"b2":"F","b2r":-67,"b3":"E","b3r":-56,"uptime":1322153}
+{"mobile_id":1, "b1":"G","b1r":-82,"b2":"F","b2r":-66,"b3":"E","b3r":-49,"uptime":1323165}
+{"mobile_id":1, "b1":"A","b1r":-74,"b2":"F","b2r":-68,"b3":"E","b3r":-55,"uptime":1324430}
+{"mobile_id":1, "b1":"A","b1r":-74,"b2":"F","b2r":-68,"b3":"E","b3r":-57,"uptime":1324682}
+{"mobile_id":1, "b1":"A","b1r":-84,"b2":"F","b2r":-67,"b3":"E","b3r":-57,"uptime":1325694}
+{"mobile_id":1, "b1":"A","b1r":-83,"b2":"F","b2r":-81,"b3":"E","b3r":-59,"uptime":1326957}
+{"mobile_id":1, "b1":"A","b1r":-83,"b2":"F","b2r":-81,"b3":"E","b3r":-62,"uptime":1327212}
+{"mobile_id":1, "b1":"A","b1r":-76,"b2":"G","b2r":-83,"b3":"E","b3r":-62,"uptime":1327969}
+{"mobile_id":1, "b1":"A","b1r":-83,"b2":"F","b2r":-69,"b3":"E","b3r":-62,"uptime":1328474}
+{"mobile_id":1, "b1":"A","b1r":-82,"b2":"F","b2r":-69,"b3":"E","b3r":-54,"uptime":1329486}
+{"mobile_id":1, "b1":"A","b1r":-81,"b2":"F","b2r":-69,"b3":"E","b3r":-55,"uptime":1330499}
+{"mobile_id":1, "b1":"A","b1r":-81,"b2":"F","b2r":-76,"b3":"E","b3r":-55,"uptime":1330750}
+{"mobile_id":1, "b1":"A","b1r":-76,"b2":"F","b2r":-76,"b3":"E","b3r":-61,"uptime":1331003}
+{"mobile_id":1, "b1":"A","b1r":-76,"b2":"F","b2r":-70,"b3":"E","b3r":-56,"uptime":1332267}
+{"mobile_id":1, "b1":"G","b1r":-86,"b2":"F","b2r":-70,"b3":"E","b3r":-60,"uptime":1333278}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-86,"b2":"F","b2r":-72,"b3":"E","b3r":-61,"uptime":1340853}
+{"mobile_id":1, "b1":"A","b1r":-79,"b2":"F","b2r":-72,"b3":"E","b3r":-60,"uptime":1341624}
+{"mobile_id":1, "b1":"A","b1r":-80,"b2":"F","b2r":-68,"b3":"E","b3r":-59,"uptime":1344658}
+{"mobile_id":1, "b1":"G","b1r":-83,"b2":"F","b2r":-62,"b3":"E","b3r":-55,"uptime":1354266}
+{"mobile_id":1, "b1":"A","b1r":-80,"b2":"F","b2r":-66,"b3":"E","b3r":-60,"uptime":1359070}
+{"mobile_id":1, "b1":"G","b1r":-84,"b2":"F","b2r":-63,"b3":"E","b3r":-58,"uptime":1361850}
+{"mobile_id":1, "b1":"G","b1r":-86,"b2":"F","b2r":-62,"b3":"E","b3r":-53,"uptime":1362861}
+{"mobile_id":1, "b1":"G","b1r":-86,"b2":"F","b2r":-62,"b3":"E","b3r":-56,"uptime":1363367}
