@@ -28,6 +28,25 @@
 
 #define TOO_CLOSE_RSSI -62
 
+/**
+ * list of beacons we have & the [2] [1] [0] (last 3 bytes in small endian) of their MAC addresses:
+ * A
+ * P (Kontakt) 5c 80 0a
+ * O (Kontakt) 30 c4 58
+ * Z (Kontakt, slow) d4:d2:a0:a4:5c:ac
+ * I (slow) d4:7f:d4:7c:20:13
+ * L (slow) 
+ * K (slow) fd:e0:8d:fa:3e:4a
+ **/
+
+/** beacon macs is an equal length array to beacon_names which 
+  * together makes up a mapping between addresses and ibeacon IDs
+**/
+// this macro must reflect the len of the array
+#define NUM_BEACON_HARDCODED_MACS 2
+char * beacon_macs[] = {"\x5c\x80\x0a", "\x30\xc4\x58"}; //last 3 bytes only
+char beacon_ids[] = {'P','Z'};
+
 uint32_t last_switchtime = 0;
 bool time_corrected = false;
 bool state = SCANNING;
@@ -123,6 +142,23 @@ void add_or_update_beacon(char id, int8_t rssi) {
 }
 
 /**
+ * match iBeacon last 3 bytes of mac addr to id
+ **/
+static char match_addr_to_id(uint8_t *mac) {
+	for (int i = 0; i < NUM_BEACON_HARDCODED_MACS; i++)
+	{
+		// printk("match_addr_to_id i %d\n",i);
+		// printk("i:%d mac2:%02x i2:%02x mac1:%02x i1:%02x mac0:%02x i0:%02x\n",i,mac[2],beacon_macs[i][2], mac[1],beacon_macs[i][1],mac[0],beacon_macs[i][0]);
+		if (mac[0] == beacon_macs[i][2] && mac[1] == beacon_macs[i][1] && mac[2] == beacon_macs[i][0] ) {
+			// printk("match found: %c\n",beacon_ids[i]);
+			return beacon_ids[i];
+		}
+
+	}
+	return 0;
+}
+
+/**
  * @brief Callback for BLE scanning, checks weather the returned 
  *          UUID matches the custom UUID of the mobile device.
  *        If matched, attempt to connect to device.
@@ -154,6 +190,7 @@ static bool parse_device(struct bt_data *data, void *user_data)
         
     }
 
+    // if (data->type == BT_DATA_NAME_SHORTENED || data->type==BT_DATA_NAME_COMPLETE ) {
     if (data->type == BT_DATA_NAME_SHORTENED || data->type==BT_DATA_NAME_COMPLETE ) {
      	char name[7];
 		strncpy(name, data->data, 6);
@@ -172,16 +209,30 @@ static bool parse_device(struct bt_data *data, void *user_data)
     			// {
     			// 	printk("%02x", data->data[i]);
     			// }
+
     			char id = name[5];
-    			printk("beacon data_len:%d type:%d rssi:%d id:%c\n", data->data_len, data->type, adv_user_dat->rssi, id);
+    			printk("beacon name:%s data_len:%d type:%d rssi:%d id:%c mac %02x:%02x:%02x:%02x:%02x:%02x\n", name, data->data_len, data->type, adv_user_dat->rssi, id, adv_user_dat->addr->a.val[5],adv_user_dat->addr->a.val[4],adv_user_dat->addr->a.val[3],adv_user_dat->addr->a.val[2],adv_user_dat->addr->a.val[1],adv_user_dat->addr->a.val[0]);
+    			// planning to just match by last 3 bytes of mac addr (2 1 0) in small endian
     			add_or_update_beacon(id, adv_user_dat->rssi);
 
     			// add_or_update_ranging_info(adv_user_dat->rssi, 0x42,  adv_user_dat->addr->a.val);
     		}
-	// }
+			if (strncmp(data->data, "Kontakt", 7) == 0) {
+				char id = match_addr_to_id(adv_user_dat->addr->a.val);
+				printk("beacon name:%s data_len:%d type:%d rssi:%d id:%c mac %02x:%02x:%02x:%02x:%02x:%02x\n", name, data->data_len, data->type, adv_user_dat->rssi, id, adv_user_dat->addr->a.val[5],adv_user_dat->addr->a.val[4],adv_user_dat->addr->a.val[3],adv_user_dat->addr->a.val[2],adv_user_dat->addr->a.val[1],adv_user_dat->addr->a.val[0]);
+    			
+				add_or_update_beacon(id, adv_user_dat->rssi);
+			}
+
 		}
+
+
 		return false;
      }
+  //    if (data -> type == BT_DATA_MANUFACTURER_DATA ) {
+		// 	printk("manuf rssi:%d mac %02x:%02x:%02x:%02x:%02x:%02x\n", adv_user_dat->rssi, adv_user_dat->addr->a.val[5],adv_user_dat->addr->a.val[4],adv_user_dat->addr->a.val[3],adv_user_dat->addr->a.val[2],adv_user_dat->addr->a.val[1],adv_user_dat->addr->a.val[0]);
+		// }
+
 #else
     // STATIC NODE ONLY CODE
 
@@ -313,7 +364,7 @@ void handle_bt_mobile(void) {
 		// k_msleep(100);
 
 		/*** state switcher ***/
-		if (state == SCANNING && ((k_uptime_get_32() - last_switchtime) > 150)) {
+		if (state == SCANNING && ((k_uptime_get_32() - last_switchtime) > 200)) {
 			printk("[%d] Switching to advertising\n", k_uptime_get_32());
 			
 			state = ADVERTISING;
