@@ -31,8 +31,8 @@
 /**
  * list of beacons we have & the [2] [1] [0] (last 3 bytes in small endian) of their MAC addresses:
  * A
- * P (Kontakt) 5c 80 0a
- * O (Kontakt) 30 c4 58
+ * P (Kontakt) e6:59:ba:5c:80:0a
+ * O (Kontakt) ec:eb:da:30:c4:58
  * Z (Kontakt, slow) d4:d2:a0:a4:5c:ac
  * I (slow) d4:7f:d4:7c:20:13
  * L (slow) 
