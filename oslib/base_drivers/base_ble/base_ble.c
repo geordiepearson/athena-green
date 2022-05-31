@@ -85,10 +85,10 @@ static bool parse_device(struct bt_data *data, void *user_data)
         // LOG_INF("mobile adv found, rssi: %d", adv_user_dat->rssi);
         struct static_ad sad;
         memcpy(&sad, data->data, sizeof(sad));
-        LOG_PRINTK("{\"static_id\":%d, \"ttl\":%d, \"mobile_id\":%d, \"b1\":\"%c\",\"b1r\":%d,\"b2\":\"%c\",\"b2r\":%d,\"b3\":\"%c\",\"b3r\":%d,\"uptime\":%d}\n", sad.static_id, sad.ttl,
+        LOG_PRINTK("{\"static_id\":%d, \"ttl\":%d, \"mobile_id\":%d, \"b1\":\"%c\",\"b1r\":%d,\"b2\":\"%c\",\"b2r\":%d,\"b3\":\"%c\",\"b3r\":%d,\"speed\":%d,\"direction\":%d,\"uptime\":%d}\n", sad.static_id, sad.ttl,
                 sad.m_ad.m_id, sad.m_ad.b1_id, sad.m_ad.b1_rssi, 
                 sad.m_ad.b2_id, sad.m_ad.b2_rssi,
-                sad.m_ad.b3_id, sad.m_ad.b3_rssi, k_uptime_get_32());
+                sad.m_ad.b3_id, sad.m_ad.b3_rssi, sad.m_ad.speed, sad.m_ad.direction, k_uptime_get_32());
         return false;
         
     }
@@ -96,10 +96,10 @@ static bool parse_device(struct bt_data *data, void *user_data)
     if (data->type == MOBILE_ADV_TYPE) {
         struct mobile_ad mad;
         memcpy(&mad, data->data, sizeof(mad));
-        LOG_PRINTK("{\"mobile_id\":%d, \"b1\":\"%c\",\"b1r\":%d,\"b2\":\"%c\",\"b2r\":%d,\"b3\":\"%c\",\"b3r\":%d,\"uptime\":%d}\n",
+        LOG_PRINTK("{\"mobile_id\":%d, \"b1\":\"%c\",\"b1r\":%d,\"b2\":\"%c\",\"b2r\":%d,\"b3\":\"%c\",\"b3r\":%d,\"speed\":%d,\"direction\":%d,\"uptime\":%d,}\n",
                 mad.m_id, mad.b1_id, mad.b1_rssi, 
                 mad.b2_id, mad.b2_rssi,
-                mad.b3_id, mad.b3_rssi, k_uptime_get_32());
+                mad.b3_id, mad.b3_rssi, mad.speed,mad.direction,k_uptime_get_32());
         return false;
     }
     return true;
