@@ -20,6 +20,7 @@
 #include <bluetooth/gatt.h>
 #include <sys/byteorder.h>
 
+#include <node_sensors.h>
 #include "node_ble.h"
 
 /* states */
@@ -90,6 +91,9 @@ int8_t top_beacon_strengths [BEACONS] = {0xff,};
  **/
 void init_bt(void) {
 	int ret;
+	step_buffer = 0;
+	dir_buffer = 0;
+
 	ret = bt_enable(NULL);
 	if (ret) {
 		printk("Bluetooth init failed with code %d.\n", ret);
@@ -329,7 +333,7 @@ static void start_scan(void)
 #if MOBILE_NODE == 1
 /* flash LED for debugging and distancing alert */
 // green for mobile node
-#define LED1_NODE DT_ALIAS(led1)
+#define LED1_NODE DT_NODELABEL(led1)
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED1_NODE, gpios);
 
 #else
@@ -390,7 +394,9 @@ void handle_bt_mobile(void) {
 			// k_msleep(30);
 
 			if (is_advertising == false) { // only start advertising when it isn started already
-				struct mobile_ad m_ad = {.m_id = M_ID, .b1_id = top_beacon_ids[0], .b1_rssi = top_beacon_strengths[0], .b2_id = top_beacon_ids[1], .b2_rssi = top_beacon_strengths[1], .b3_id = top_beacon_ids[2], .b3_rssi = top_beacon_strengths[2], .speed=66, .direction=1};
+				struct mobile_ad m_ad = {.m_id = M_ID, .b1_id = top_beacon_ids[0], .b1_rssi = top_beacon_strengths[0], .b2_id = top_beacon_ids[1],
+							 .b2_rssi = top_beacon_strengths[1], .b3_id = top_beacon_ids[2], .b3_rssi = top_beacon_strengths[2],
+							 .speed=step_buffer, .direction=dir_buffer};
 
 				struct bt_data data_ad[] = {
 						BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),

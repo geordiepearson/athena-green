@@ -72,6 +72,10 @@ typedef struct sensor_data {
 	int dir;
 } sensor_data;
 
+// Global variable buffers
+extern int step_buffer;
+extern int dir_buffer;
+
 /* Function Prototypes */
 // Initializes the given LED.
 // Parameters:
