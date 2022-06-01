@@ -27,7 +27,7 @@
 #define SCANNING 0
 #define ADVERTISING 1
 
-#define TOO_CLOSE_RSSI -62
+#define TOO_CLOSE_RSSI -55
 
 /**
  * list of beacons we have & the [2] [1] [0] (last 3 bytes in small endian) of their MAC addresses:
@@ -458,7 +458,7 @@ void handle_bt_mobile(void) {
 			
 		}
 
-		k_msleep(50);
+		k_msleep(50 + 30 * (M_ID % 2) + M_ID * 5); // use mobile id to randomize timing
 
 	}
 }
