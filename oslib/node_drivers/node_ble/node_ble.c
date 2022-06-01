@@ -44,7 +44,7 @@
   * together makes up a mapping between addresses and ibeacon IDs
 **/
 // this macro must reflect the len of the array
-#define NUM_BEACON_HARDCODED_MACS 1
+#define NUM_BEACON_HARDCODED_MACS 2
 char * beacon_macs[] = {"\x5c\x80\x0a", "\x30\xc4\x58"}; //last 3 bytes only
 char beacon_ids[] = {'P', 'O'};
 
