@@ -44,6 +44,8 @@
 	// static const struct device* thingy52_mpu;
 #endif
 
+int dir_buffer = 0;
+int step_buffer = 0; 
 static const int lis2dh_sensors[1] = {SENSOR_CHAN_ACCEL_XYZ};
 io_data io = {{0, 0, 0}, 0, 0, 100, 10};
 sensor_data data = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -197,18 +199,24 @@ void handle_sensor_mobile() {
 	for (int i = 0; i < 3; i++) {
 		init_led(&io, i);
 	} 
-	init_button(&io);	
+	init_button(&io);
+
 	int prev_values[3] = {0, 0, 0};
 	int step = 0;
 	int direction = 0;
+	int delay = 0;
+
 	while(1) {
 		k_sem_take(&sensor_sem, K_FOREVER);
 		read_sensor(thingy52_lis2dh, lis2dh_sensors, 1, &data);
 	
 		step = acceleration_to_step(data, prev_values);
-		direction = acceleration_to_direction(&data);
-		if (direction != data.dir) {
-			step = 0;
+		if (delay == 0) {
+			direction = acceleration_to_direction(&data);
+			if (direction != data.dir) {
+				delay = 5;
+				step = 0;
+			}
 		}
 		prev_values[0] = data.x_accel;
 		prev_values[1] = data.y_accel; 
@@ -216,66 +224,14 @@ void handle_sensor_mobile() {
 		data.dir = direction;
 		// update buffer
 	
+		step_buffer = step;
+		dir_buffer = direction;
+		if (delay > 0) {
+		 	delay -= 1;
+		}
+
 		k_sem_give(&sensor_sem);
 		k_msleep(SENSORS_SLEEP);
 	}
 }
 #endif
-//printk("X: %d Y: %d Z: %d\n", (int) data.x_accel, (int) data.y_accel, (int) data.z_accel);
-
-/* Defines config struct for imu
-struct pwr_ctrl_cfg {
-	const char* port;
-	uint32_t pin;
-};
-
-int pwr_init(const struct device* dev) {
-	const struct pwr_ctrl_cfg* cfg = dev->config;
-	const struct device* gpio;
-
-	gpio = device_get_binding(cfg->port);
-	if (!gpio) {
-		printk("Could not bin device\n");
-		return -1;
-	}
-
-	gpio_pin_configure(gpio, cfg->pin, GPIO_OUTPUT_HIGH);
-	k_sleep(K_MSEC(1));
-	return 0;
-}
-
-#if CONFIG_BOARD_VDD_PWR_CTRL_INIT_PRIORITY <= CONFIG_GPIO_INIT_PRIORITY
-#error GPIO_INIT_PRIORITY must be lower than \
-	BOARD_VDD_PWR_CTRL_INIT_PRIORITY
-#endif
-
-static const struct pwr_ctrl_cfg vdd_pwr_ctrl_cfg = {
-	.port = DT_LABEL(DT_NODELABEL(gpio0)),
-	.pin = VDD_PWR_CTRL_PIN,
-};
-
-DEVICE_DEFINE(vdd_pwr_ctrl_init, "", pwr_init, NULL, NULL,
-	      &vdd_pwr_ctrl_cfg,
-	      POST_KERNEL, CONFIG_BOARD_VDD_PWR_CTRL_INIT_PRIORITY,
-	      NULL);
-
-#ifdef CONFIG_SENSOR
-
-#if CONFIG_BOARD_MPU_VDD_PWR_CTRL_INIT_PRIORITY <= CONFIG_BOARD_VDD_PWR_CTRL_INIT_PRIORITY
-#error BOARD_VDD_PWR_CTRL_INIT_PRIORITY must be lower than BOARD_MPU_VDD_PWR_CTRL_INIT_PRIORITY
-#endif
-
-#if CONFIG_SENSOR_INIT_PRIORITY <= CONFIG_BOARD_MPU_VDD_PWR_CTRL_INIT_PRIORITY
-#error BOARD_MPU_VDD_PWR_CTRL_INIT_PRIORITY must be lower than SENSOR_INIT_PRIORITY
-#endif
-
-static const struct pwr_ctrl_cfg mpu_vdd_pwr_ctrl_cfg = {
-	.port = DT_LABEL(DT_INST(0, semtech_sx1509b)),
-	.pin = 	MPU_PWR_CTRL_PIN,
-};
-
-DEVICE_DEFINE(mpu_vdd_pwr_ctrl_init, "", pwr_init, NULL, NULL,
-	      &mpu_vdd_pwr_ctrl_cfg, POST_KERNEL,
-	      CONFIG_BOARD_CCS_VDD_PWR_CTRL_INIT_PRIORITY, NULL);
-#endif
-*/
