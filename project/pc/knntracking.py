@@ -255,7 +255,7 @@ def on_message(client, userdata, message):
             mobile_coords_2_knn = knn_zone_coords[knn_res] 
     # print('knn zone (m%d):'% d["mobile_id"],knn_zone_coords[knn_res])
 
-    if new_coords[0] != -1 and new_coords[1] != -1 and steps > 0:
+    if new_coords[0] != -1 and new_coords[1] != -1:
         if int(d["mobile_id"]) == 1:
             dif = math.sqrt(((new_coords[0] - mobile_coords_1[0]) ** 2 +
                 (new_coords[1] - mobile_coords_1[1]) ** 2))
