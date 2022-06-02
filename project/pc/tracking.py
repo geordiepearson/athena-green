@@ -11,10 +11,24 @@ import time
 import paho.mqtt.client as mqtt
 import pickle
 import csv
+import pandas as pd
+import datetime
 
 client = mqtt.Client()
-
+#knn
+knn = pickle.load(open('model_knn.pickle', 'rb'))
 NUM_NODE_TRACKED = 12
+
+knn_zone_coords = {
+        1: (5, 8.4),
+        2: (9, 8.5),
+        3: (12, 9),
+        4: (18, 8.5),
+        5: (23, 8.7),
+        6: (26, 8.6),
+        7: (29, 8.7),
+        8: (35, 9.6)
+} 
 
 beacon_coords = { "A" : (4, 8.5),
                   "E" : (10.5, 8.5),
@@ -40,8 +54,12 @@ beacon_coords = { "A" : (4, 8.5),
 
 mobile_loc_1 = None
 mobile_coords_1 = [13.5, 7.5]
+mobile_coords_1_knn = [20, 8]
 mobile_loc_2 = None
 mobile_coords_2 = [13.5, 7.5]
+mobile_coords_2_knn = [10, 7]
+mobile_loc_1_knn = None
+mobile_loc_2_knn = None
 ax = None
 family = [[0], [0]]
 same = 0
@@ -92,10 +110,10 @@ def init_family():
             if len(fam) > 1:
                 same = 1
 
-def draw_points(coordinates, mobile_id):
+def draw_points(coordinates, mobile_id, knn=False):
     global ax
-    global mobile_loc_1
-    global mobile_loc_2
+    global mobile_loc_1,mobile_loc_1_knn 
+    global mobile_loc_2,mobile_loc_2_knn
 
     if coordinates[0] > 50 or coordinates[1] > 35 or coordinates[0] < 0 or coordinates[1] < 0:
         return
@@ -105,12 +123,37 @@ def draw_points(coordinates, mobile_id):
 
     if mobile_id == 1:
         color = "red"
-        ax.lines.remove(mobile_loc_1)
+        if knn and mobile_loc_1_knn != None:
+            try:
+                ax.lines.remove(mobile_loc_1_knn)
+                plt.pause(0.01)
+
+            except ValueError as e:
+                print(e)
+                pass
+            
+        elif not knn and mobile_loc_1 != None:
+            ax.lines.remove(mobile_loc_1)    
+        
     else:
         color = "green"
-        ax.lines.remove(mobile_loc_2)
+        if knn and mobile_loc_2_knn != None:
+            try:
+                ax.lines.remove(mobile_loc_2_knn)
+                plt.pause(0.01)
 
-    point, = plt.plot(coordinates[0], coordinates[1], marker="o", markersize=20, markeredgecolor="blue",
+            except ValueError as e:
+                print(e)
+
+        elif not knn and mobile_loc_2 != None:
+            ax.lines.remove(mobile_loc_2)
+
+    if knn:
+        # unpacking a tuple
+        point, = plt.plot(coordinates[0], coordinates[1], marker="o", markersize=40, markeredgecolor=color,
+                       markerfacecolor=color, alpha=0.6) # marker face white?
+    else:
+        point, = plt.plot(coordinates[0], coordinates[1], marker="o", markersize=20, markeredgecolor="blue",
                        markerfacecolor=color)
     
     plt.pause(0.01)
@@ -157,11 +200,24 @@ def step_to_coordinate(coordinate, step, direction):
 
     return final_coords
 
+def compute_knn(rssi_ids, rssi_values):
+    # fitting to the training data format, converting ids to int
+    rssi_id_x = [ord(x) for x in rssi_ids]
+    Xdata = {'b1':rssi_id_x[0],'b2':rssi_id_x[1],'b3':rssi_id_x[2],'b1r':rssi_values[0], 'b2r':rssi_values[1], 'b3r':rssi_values[2]}
+    
+    # for i in range(0,3):
+    #     Xdata[i] = [rssi_id_x[0],rssi_id_x[1],rssi_id_x[2],rssi_values[0],rssi_values[1],rssi_values[2]]
+    X = pd.DataFrame.from_dict([Xdata])#,index=[0])
+    # print(X)
+    pred = knn.predict(X)
+    return pred
+
+
 def on_message(client, userdata, message):
-    global mobile_loc_1
-    global mobile_loc_2
-    global mobile_coords_1
-    global mobile_coords_2
+    global mobile_loc_1,mobile_loc_1_knn
+    global mobile_loc_2,mobile_loc_2_knn
+    global mobile_coords_1,mobile_coords_1_knn
+    global mobile_coords_2,mobile_coords_2_knn
     global family
     global same
 
@@ -180,12 +236,26 @@ def on_message(client, userdata, message):
     #print(direction)
 
     multilat = compute_multilat(rssi_ids, rssi_values)
+    knn_res = compute_knn(rssi_ids, rssi_values)[0]
+    # print('knn res:',knn_res)
     try:
         new_coords = (multilat[0][0], multilat[3][1])
     except TypeError as e:
         new_coords = (-1,-1)
 
-    if new_coords[0] != -1 and new_coords[1] != -1 and steps > 0:
+    # knn updates regardless of accel
+    if d["mobile_id"] == 1:
+        if mobile_coords_1_knn != knn_zone_coords[knn_res]:
+            mobile_loc_1_knn = draw_points(knn_zone_coords[knn_res], 1, knn=True)
+            mobile_coords_1_knn = knn_zone_coords[knn_res] 
+    else:
+        # only draw if not the same
+        if mobile_coords_2_knn != knn_zone_coords[knn_res]:
+            mobile_loc_2_knn = draw_points(knn_zone_coords[knn_res], 2, knn=True)
+            mobile_coords_2_knn = knn_zone_coords[knn_res] 
+    # print('knn zone (m%d):'% d["mobile_id"],knn_zone_coords[knn_res])
+
+    if new_coords[0] != -1 and new_coords[1] != -1:
         if int(d["mobile_id"]) == 1:
             dif = math.sqrt(((new_coords[0] - mobile_coords_1[0]) ** 2 +
                 (new_coords[1] - mobile_coords_1[1]) ** 2))
@@ -193,6 +263,7 @@ def on_message(client, userdata, message):
                 final_coords = step_to_coordinate(mobile_coords_1, steps, direction)
             else:
                 final_coords = step_to_coordinate(new_coords, steps, direction)"""
+            final_coords = step_to_coordinate(new_coords, steps, direction)
             mobile_coords_1 = final_coords
         else:
             dif = math.sqrt(((new_coords[0] - mobile_coords_2[0]) ** 2 +
@@ -201,17 +272,23 @@ def on_message(client, userdata, message):
                 final_coords = step_to_coordinate(mobile_coords_2, steps, direction)
             else:
                 final_coords = step_to_coordinate(new_coords, steps, direction)"""
+            final_coords = step_to_coordinate(new_coords, steps, direction)
             mobile_coords_2  = final_coords
-
+        
         if int(d["mobile_id"]) == 1:
             mobile_loc_1 = draw_points(final_coords, 1)
         else:
             mobile_loc_2 = draw_points(final_coords, 2)
+            
+
+
     
     if same == 0:
+        if mobile_coords_1_knn == mobile_coords_2_knn:
+            print("COVID BAD (knn)", datetime.datetime.now())
         if math.sqrt((mobile_coords_1[0] - mobile_coords_2[0])** 2 +
                      (mobile_coords_1[1] - mobile_coords_2[1])** 2) < 2:
-            print("COVID BAD")
+            print("COVID BAD (mlat)", datetime.datetime.now())
 
 def on_log(client, userdata, level, buf):
     print("log: " + buf)
