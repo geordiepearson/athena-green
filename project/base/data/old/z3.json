@@ -1,5 +1,3 @@
-connecting to broker localhost
-connected OK
 {"mobile_id":1, "b1":"G","b1r":-82,"b2":"F","b2r":-63,"b3":"E","b3r":-62,"uptime":1370448}
 {"mobile_id":1, "b1":"G","b1r":-82,"b2":"F","b2r":-63,"b3":"E","b3r":-68,"uptime":1370700}
 {"mobile_id":1, "b1":"G","b1r":-82,"b2":"F","b2r":-68,"b3":"E","b3r":-64,"uptime":1371712}

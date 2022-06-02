@@ -58,7 +58,7 @@ def main(args):
                     msg = msg.decode('utf-8','ignore')
                     print('publishing:',msg)
                     publish(client, args.topic, msg)
-    client.loop_forever()
+    client.loop_forever(timeout=100000)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

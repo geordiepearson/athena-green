@@ -27,7 +27,7 @@
 #define SCANNING 0
 #define ADVERTISING 1
 
-#define TOO_CLOSE_RSSI -62
+#define TOO_CLOSE_RSSI -55
 
 /**
  * list of beacons we have & the [2] [1] [0] (last 3 bytes in small endian) of their MAC addresses:
@@ -44,9 +44,9 @@
   * together makes up a mapping between addresses and ibeacon IDs
 **/
 // this macro must reflect the len of the array
-#define NUM_BEACON_HARDCODED_MACS 1
-char * beacon_macs[] = {"\x5c\x80\x0a"}; //, "\x30\xc4\x58"}; //last 3 bytes only
-char beacon_ids[] = {'P'};
+#define NUM_BEACON_HARDCODED_MACS 2
+char * beacon_macs[] = {"\x5c\x80\x0a", "\x30\xc4\x58"}; //last 3 bytes only
+char beacon_ids[] = {'P', 'O'};
 
 uint32_t last_switchtime = 0;
 bool time_corrected = false;
@@ -458,7 +458,7 @@ void handle_bt_mobile(void) {
 			
 		}
 
-		k_msleep(50);
+		k_msleep(50 + 30 * (M_ID % 2) + M_ID * 5); // use mobile id to randomize timing
 
 	}
 }

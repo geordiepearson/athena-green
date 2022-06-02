@@ -19,7 +19,7 @@ def on_log(client, userdata, level, buf):
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print ("connected OK")
+        print ("connected OK",file=sys.stderr)
         # with port as s:
         #     while 1:
         #         msg = s.read(80)
@@ -32,7 +32,7 @@ def on_connect(client, userdata, flags, rc):
 
 def on_disconnect(client, userdata, rc):
     if rc != 0:
-        print("Unexpected disconnection.")
+        print("Unexpected disconnection.",file=sys.stderr)
 
 def on_message(client, userdata, message):
     try:
@@ -48,11 +48,11 @@ def main(args):
         
     if args.verbose:
         client.on_log = on_log
-    print ("connecting to broker", args.host)
+    print ("connecting to broker", args.host,file=sys.stderr)
     client.connect(args.host, args.port)
     time.sleep(1)
     client.subscribe(args.topic)
-    client.loop_forever()
+    client.loop_forever(timeout=100000)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

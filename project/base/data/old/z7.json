@@ -1,0 +1,65 @@
+{"mobile_id":1, "b1":"A","b1r":-83,"b2":"E","b2r":-67,"b3":"P","b3r":-54,"uptime":2170216}
+{"mobile_id":1, "b1":"Z","b1r":-84,"b2":"E","b2r":-68,"b3":"P","b3r":-53,"uptime":2171733}
+{"mobile_id":1, "b1":"F","b1r":-78,"b2":"E","b2r":-64,"b3":"P","b3r":-53,"uptime":2172997}
+{"mobile_id":1, "b1":"G","b1r":-75,"b2":"E","b2r":-64,"b3":"P","b3r":-52,"uptime":2175020}
+{"mobile_id":1, "b1":"G","b1r":-77,"b2":"E","b2r":-64,"b3":"P","b3r":-59,"uptime":2176285}
+{"mobile_id":1, "b1":"G","b1r":-77,"b2":"E","b2r":-64,"b3":"P","b3r":-59,"uptime":2176537}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-77,"b2":"E","b2r":-67,"b3":"P","b3r":-52,"uptime":2177801}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-75,"b2":"E","b2r":-60,"b3":"P","b3r":-65,"uptime":2180936}
+{"mobile_id":1, "b1":"G","b1r":-73,"b2":"E","b2r":-61,"b3":"P","b3r":-58,"uptime":2181593}
+{"mobile_id":1, "b1":"A","b1r":-76,"b2":"E","b2r":-59,"b3":"P","b3r":-66,"uptime":2182859}
+{"mobile_id":1, "b1":"A","b1r":-79,"b2":"E","b2r":-61,"b3":"P","b3r":-67,"uptime":2188673}
+{"mobile_id":1, "b1":"F","b1r":-79,"b2":"E","b2r":-61,"b3":"P","b3r":-67,"uptime":2188927}
+{"mobile_id":1, "b1":"Z","b1r":-81,"b2":"E","b2r":-61,"b3":"P","b3r":-67,"uptime":2189179}
+{"mobile_id":1, "b1":"G","b1r":-76,"b2":"E","b2r":-61,"b3":"P","b3r":-67,"uptime":2190190}
+{"mobile_id":1, "b1":"F","b1r":-75,"b2":"E","b2r":-61,"b3":"P","b3r":-60,"uptime":2190444}
+{"mobile_id":1, "b1":"F","b1r":-78,"b2":"E","b2r":-48,"b3":"P","b3r":-62,"uptime":2191707}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"F","b1r":-78,"b2":"E","b2r":-59,"b3":"P","b3r":-62,"uptime":2192466}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-81,"b2":"E","b2r":-62,"b3":"P","b3r":-65,"uptime":2193022}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"Z","b1r":-85,"b2":"P","b2r":-65,"b3":"E","b3r":-68,"uptime":2280307}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-65,"b3":"E","b3r":-66,"uptime":2281370}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-65,"b3":"E","b3r":-66,"uptime":2285060}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-62,"b3":"E","b3r":-66,"uptime":2286122}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-62,"b3":"E","b3r":-66,"uptime":2286629}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"Z","b1r":-85,"b2":"P","b2r":-65,"b3":"E","b3r":-68,"uptime":2287640}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-65,"b3":"E","b3r":-66,"uptime":2289257}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-65,"b3":"E","b3r":-66,"uptime":2289814}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-77,"b2":"P","b2r":-65,"b3":"E","b3r":-69,"uptime":2291432}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-61,"b3":"E","b3r":-74,"uptime":2292443}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-65,"b3":"E","b3r":-68,"uptime":2295629}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-65,"b3":"E","b3r":-79,"uptime":2299776}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-65,"b3":"E","b3r":-68,"uptime":2303468}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-65,"b3":"E","b3r":-69,"uptime":2306047}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"Z","b1r":-88,"b2":"P","b2r":-65,"b3":"E","b3r":-71,"uptime":2310194}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-77,"b2":"P","b2r":-65,"b3":"E","b3r":-76,"uptime":2319701}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-65,"b3":"E","b3r":-79,"uptime":2322281}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-62,"b3":"E","b3r":-69,"uptime":2323848}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-64,"b3":"E","b3r":-71,"uptime":2329614}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-63,"b3":"E","b3r":-67,"uptime":2334922}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-74,"b2":"P","b2r":-65,"b3":"F","b3r":-88,"uptime":2338108}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-61,"b3":"E","b3r":-72,"uptime":2356467}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-62,"b3":"E","b3r":-73,"uptime":2369514}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-65,"b3":"E","b3r":-73,"uptime":2371082}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-65,"b3":"E","b3r":-66,"uptime":2372700}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-65,"b3":"E","b3r":-69,"uptime":2374267}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"Z","b1r":-83,"b2":"P","b2r":-65,"b3":"E","b3r":-67,"uptime":2375885}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"Z","b1r":-83,"b2":"P","b2r":-65,"b3":"E","b3r":-67,"uptime":2376898}
+{"static_id":7, "ttl":4, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-65,"b3":"E","b3r":-67,"uptime":2377255}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-79,"b2":"P","b2r":-65,"b3":"E","b3r":-67,"uptime":2377403}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"F","b1r":-81,"b2":"P","b2r":-65,"b3":"E","b3r":-74,"uptime":2380083}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-65,"b3":"E","b3r":-69,"uptime":2381652}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-62,"b3":"Z","b3r":-88,"uptime":2383221}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-61,"b3":"E","b3r":-70,"uptime":2384837}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"G","b1r":-75,"b2":"P","b2r":-65,"b3":"E","b3r":-69,"uptime":2386404}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"G","b1r":-78,"b2":"P","b2r":-62,"b3":"E","b3r":-67,"uptime":2387972}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-68,"b2":"P","b2r":-65,"b3":"G","b3r":-78,"uptime":2400060}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-81,"b2":"P","b2r":-65,"b3":"G","b3r":-79,"uptime":2415281}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-82,"b2":"P","b2r":-62,"b3":"G","b3r":-79,"uptime":2422158}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-77,"b2":"P","b2r":-64,"b3":"G","b3r":-76,"uptime":2429541}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-77,"b2":"P","b2r":-64,"b3":"G","b3r":-76,"uptime":2430148}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"E","b1r":-69,"b2":"P","b2r":-62,"b3":"G","b3r":-78,"uptime":2436875}
+{"static_id":7, "ttl":3, "mobile_id":1, "b1":"E","b1r":-67,"b2":"P","b2r":-62,"b3":"Z","b3r":-86,"uptime":2445777}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-70,"b2":"P","b2r":-65,"b3":"G","b3r":-74,"uptime":2453665}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-68,"b2":"P","b2r":-65,"b3":"F","b3r":-85,"uptime":2454222}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-68,"b2":"P","b2r":-66,"b3":"G","b3r":-76,"uptime":2455283}
+{"static_id":5, "ttl":4, "mobile_id":1, "b1":"E","b1r":-68,"b2":"P","b2r":-62,"b3":"G","b3r":-76,"uptime":2455839}
