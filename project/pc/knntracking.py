@@ -12,6 +12,7 @@ import paho.mqtt.client as mqtt
 import pickle
 import csv
 import pandas as pd
+import datetime
 
 client = mqtt.Client()
 #knn
@@ -53,8 +54,10 @@ beacon_coords = { "A" : (4, 8.5),
 
 mobile_loc_1 = None
 mobile_coords_1 = [13.5, 7.5]
+mobile_coords_1_knn = [20, 8]
 mobile_loc_2 = None
 mobile_coords_2 = [13.5, 7.5]
+mobile_coords_2_knn = [10, 7]
 mobile_loc_1_knn = None
 mobile_loc_2_knn = None
 ax = None
@@ -129,7 +132,7 @@ def draw_points(coordinates, mobile_id, knn=False):
                 print(e)
                 pass
             
-        elif mobile_loc_1 != None:
+        elif not knn and mobile_loc_1 != None:
             ax.lines.remove(mobile_loc_1)    
         
     else:
@@ -142,14 +145,15 @@ def draw_points(coordinates, mobile_id, knn=False):
             except ValueError as e:
                 print(e)
 
-        elif mobile_loc_2 != None:
+        elif not knn and mobile_loc_2 != None:
             ax.lines.remove(mobile_loc_2)
 
     if knn:
-        point = plt.plot(coordinates[0], coordinates[1], marker="o", markersize=40, markeredgecolor=color,
-                       markerfacecolor=color, alpha=1) # marker face white?
+        # unpacking a tuple
+        point, = plt.plot(coordinates[0], coordinates[1], marker="o", markersize=40, markeredgecolor=color,
+                       markerfacecolor=color, alpha=0.6) # marker face white?
     else:
-        point = plt.plot(coordinates[0], coordinates[1], marker="o", markersize=20, markeredgecolor="blue",
+        point, = plt.plot(coordinates[0], coordinates[1], marker="o", markersize=20, markeredgecolor="blue",
                        markerfacecolor=color)
     
     plt.pause(0.01)
@@ -210,10 +214,10 @@ def compute_knn(rssi_ids, rssi_values):
 
 
 def on_message(client, userdata, message):
-    global mobile_loc_1
-    global mobile_loc_2
-    global mobile_coords_1,mobile_loc_1_knn
-    global mobile_coords_2,mobile_loc_2_knn
+    global mobile_loc_1,mobile_loc_1_knn
+    global mobile_loc_2,mobile_loc_2_knn
+    global mobile_coords_1,mobile_coords_1_knn
+    global mobile_coords_2,mobile_coords_2_knn
     global family
     global same
 
@@ -233,7 +237,7 @@ def on_message(client, userdata, message):
 
     multilat = compute_multilat(rssi_ids, rssi_values)
     knn_res = compute_knn(rssi_ids, rssi_values)[0]
-    print('knn res:',knn_res)
+    # print('knn res:',knn_res)
     try:
         new_coords = (multilat[0][0], multilat[3][1])
     except TypeError as e:
@@ -241,10 +245,15 @@ def on_message(client, userdata, message):
 
     # knn updates regardless of accel
     if d["mobile_id"] == 1:
-        mobile_loc_1_knn = draw_points(knn_zone_coords[knn_res], 1, knn=True)
+        if mobile_coords_1_knn != knn_zone_coords[knn_res]:
+            mobile_loc_1_knn = draw_points(knn_zone_coords[knn_res], 1, knn=True)
+            mobile_coords_1_knn = knn_zone_coords[knn_res] 
     else:
-        mobile_loc_2_knn = draw_points(knn_zone_coords[knn_res], 2, knn=True)
-    print('knn zone coords:',knn_zone_coords[knn_res])
+        # only draw if not the same
+        if mobile_coords_2_knn != knn_zone_coords[knn_res]:
+            mobile_loc_2_knn = draw_points(knn_zone_coords[knn_res], 2, knn=True)
+            mobile_coords_2_knn = knn_zone_coords[knn_res] 
+    # print('knn zone (m%d):'% d["mobile_id"],knn_zone_coords[knn_res])
 
     if new_coords[0] != -1 and new_coords[1] != -1 and steps > 0:
         if int(d["mobile_id"]) == 1:
@@ -275,9 +284,11 @@ def on_message(client, userdata, message):
 
     
     if same == 0:
+        if mobile_coords_1_knn == mobile_coords_2_knn:
+            print("COVID BAD (knn)", datetime.datetime.now())
         if math.sqrt((mobile_coords_1[0] - mobile_coords_2[0])** 2 +
                      (mobile_coords_1[1] - mobile_coords_2[1])** 2) < 2:
-            print("COVID BAD")
+            print("COVID BAD (mlat)", datetime.datetime.now())
 
 def on_log(client, userdata, level, buf):
     print("log: " + buf)
